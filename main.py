@@ -9,6 +9,8 @@ dirstocreate = []
 filesalreadyexists = []
 filestocheck = []
 original = []
+errorswhilecopy = []
+originalerrorfile=[]
 
 #HELPFUNCTIONS
 def file(_input):
@@ -70,8 +72,9 @@ def copy(_dataset, _target):
             copy(os.path.join(_dataset, _temp_data), os.path.join(_target, _temp_data))
 
 def check_file(_file, _copy): 
-    _temp = filecmp.cmp(_file, _copy, shallow=False)
-    print("Check of ", _file , "and ", _copy, _temp)
+    #_temp = filecmp.cmp(_file, _copy, shallow=False)
+    _temp = actual_copy(_file,_copy)
+    #print("Check of ", _file , "and ", _copy, _temp)
     #with open(_file, 'rb') as original:
      #   print("Opening ", _file)
       #  with open(_copy, 'rb') as copy:
@@ -99,7 +102,7 @@ def getfiles():
     _temp = input("Do you want to create a new folder as a destination? [Y/N]").upper()
     while _temp not in ["Y", "N"]:
         _temp = input("Input not valid. Do you want to create a new folder as a destination? [Y/N]").upper()
-    if _temp:
+    if _temp == "Y":
         target = file(input("Enter new folder adress"))
         while not os.path.exists(file(os.path.split(target)[0])):
             print(os.path.split(target)[0])
@@ -122,7 +125,7 @@ def getfiles():
 
 def init():
     print("Loading TRANSFER.PIE")
-    print("TRANSFER.PIE 0.3.0.3")
+    print("TRANSFER.PIE 0.3.1.7")
     global dataset
     print("*")
     dataset = ""
@@ -147,6 +150,14 @@ def init():
     print("***********")
     original = []
     print("************")
+    global errorswhilecopy
+    print("*************")
+    errorswhilecopy = []
+    print("**************")
+    global originalerrorfile
+    print("***************")
+    originalerrorfile = []
+    print("****************")
     print("TRANSFER.PIE ready for use!\n\n")
     #print(dataset," >>> ", target)
     #print("Starting to check Files\n\n")
@@ -174,15 +185,51 @@ def main():
     copy(dataset,target)
     print("Copied ", dataset, " >>> ", target)
     print("Checking files")
-    for _file_copy in filestocheck:
-        for _file_org in original:
-            print("Checking ", _file_copy)
-            check_file(_file_org,_file_copy)
+   #for _file_copy in filestocheck:
+    #    for _file_org in original:
+     #       print("Checking ", _file_copy)
+      #      check_file(_file_org,_file_copy)
+    if not len(filestocheck) == len(original):
+        print("ERROR CODE 001")
+    else:
+        i=0
+        _temp=True
+        while i<len(filestocheck):
+            print("CHECK OF ", filestocheck[i], " and ", original[i])
+            _temp = check_file(filestocheck[i],original[i])
+            if _temp:
+                print("Copy of ", original[i], " successful.")
+            else:
+                print("Error with file of ", filestocheck[i])
+                errorswhilecopy.append(filestocheck[i])
+                originalerrorfile.append(original[i])
+            i+=1
+        if errorswhilecopy:
+            for _error in errorswhilecopy:
+                print("Error with the copy ", _error)
+
+            print("Error while copying ", original[i],". Copy is not the same as the original.")
     print("Thanks for using TRANSFER.PIE")
 
 main()
 
 
+#org copy from filecmp
+bufsize=0
+def actual_copy(file1, file2):
+    bufsize=4*1024
+    with open(file1, 'rb') as f1, open(file2, 'rb') as f2:
+        while True:
+            b1=f1.read(bufsize)
+            b2=f2.read(bufsize)
+            if b1!=b2:
+                return False
+            if not b1:
+                return True
+
 #TODO
 #FehlerCodes
 #FEHLER IM CHECKEN!! - wegen Array. Vergleicht falsche Dateien
+#beim neuen ordner checken ob ordner schon besteht
+#Files neu kopieren nach Fehlerhafter kopie?
+#Ladebalken
