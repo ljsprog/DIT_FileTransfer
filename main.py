@@ -96,22 +96,33 @@ def getfiles():
     dataset = file(input("Enter File or Directory to be copied: "))
     while not os.path.exists(dataset) == True:
         dataset = file(input("Address not found. Enter File or Directory to be copied: "))
-    target = file(input("Enter Directory to be copied to: "))
-    while not os.path.exists(target) == True:
-        if os.path.isfile(target):
-            target = file(input("Destination is a file. Enter Directory to be copied to: "))
-        else: 
-            target = file(input("Adress not found. Enter Directory to be copied to: "))
-    #Check Files again
-    if os.path.exists(dataset):
-        if os.path.exists(target):
-            return True
+    _temp = input("Do you want to create a new folder as a destination? [Y/N]").upper()
+    while _temp not in ["Y", "N"]:
+        _temp = input("Input not valid. Do you want to create a new folder as a destination? [Y/N]").upper()
+    if _temp:
+        target = file(input("Enter new folder adress"))
+        while not os.path.exists(file(os.path.split(target)[0])):
+            print(os.path.split(target)[0])
+            target = file(input("Not possibile to create desired folder. Please enter a adress where the subfolder does exist!"))
+        os.mkdir(target)
+    else:
+        target = file(input("Enter Directory to be copied to: "))
+        while not os.path.exists(target) == True:
+            if os.path.isfile(target):
+                target = file(input("Destination is a file. Enter Directory to be copied to: "))
+            else: 
+                target = file(input("Adress not found. Enter Directory to be copied to: "))
+        #Check Files again
+        if os.path.exists(dataset):
+            if os.path.exists(target):
+                print("Success")
+                return True
     #Fehlercodes in Else
     return False
 
 def init():
     print("Loading TRANSFER.PIE")
-    print("TRANSFER.PIE 0.2.1.6")
+    print("TRANSFER.PIE 0.3.0.3")
     global dataset
     print("*")
     dataset = ""
@@ -142,8 +153,7 @@ def init():
 
 def main():
     init()
-    while not getfiles() == True:
-        getfiles()
+    getfiles()
     print(dataset," >>> ", target)
     print("Starting to check Files\n\n")
     check_validity(dataset, target)
@@ -175,6 +185,4 @@ main()
 
 #TODO
 #FehlerCodes
-#Create New Folder
-#Checks erst nach Copy!/
-#FEHLER IM CHECKEN!!
+#FEHLER IM CHECKEN!! - wegen Array. Vergleicht falsche Dateien
