@@ -73,7 +73,7 @@ def copy(_dataset, _target):
 
 def check_file(_file, _copy): 
     #_temp = filecmp.cmp(_file, _copy, shallow=False)
-    _temp = actual_copy(_file,_copy)
+    _temp = actual_check(_file,_copy)
     #print("Check of ", _file , "and ", _copy, _temp)
     #with open(_file, 'rb') as original:
      #   print("Opening ", _file)
@@ -103,11 +103,12 @@ def getfiles():
     while _temp not in ["Y", "N"]:
         _temp = input("Input not valid. Do you want to create a new folder as a destination? [Y/N]").upper()
     if _temp == "Y":
-        target = file(input("Enter new folder adress"))
-        while not os.path.exists(file(os.path.split(target)[0])):
-            print(os.path.split(target)[0])
-            target = file(input("Not possibile to create desired folder. Please enter a adress where the subfolder does exist!"))
-        os.mkdir(target)
+        #target = file(input("Enter new folder adress"))
+        #while not os.path.exists(file(os.path.split(target)[0])):
+         #   print(os.path.split(target)[0])
+          #  target = file(input("Not possibile to create desired folder. Please enter a adress where the subfolder does exist!"))
+        #os.mkdir(target)
+        target = newfolder()
     else:
         target = file(input("Enter Directory to be copied to: "))
         while not os.path.exists(target) == True:
@@ -123,9 +124,48 @@ def getfiles():
     #Fehlercodes in Else
     return False
 
+def newfolder():
+    global target
+    _target = file(input("Enter new folder adress"))
+    while True:
+        if not os.path.exists(file(os.path.split(_target)[0])):
+            _target = file(input("Cannot create folder. Subdirectory does not exists. Please start with the first new folder or check adress."))
+        elif os.path.exists(_target):
+            _temp = input("Cannot create folder. Folder does exists. Do you want to use the folder?").upper()
+            while not _temp in ["Y","N"]:
+                _temp = input("No valid input. [Y/N").upper()
+            if _temp == "Y":
+                target=_target
+                return _target
+        else:
+            break
+    os.mkdir(_target)
+    print(_target, "created.")
+    _text = ("Should the directory be used as a destintation? Otherwise you can still create a subfolder [Y/N]")
+    _temp = input(_text).upper()
+    while _temp not in ["Y","N"]:
+        _temp = input("No valid Input. [Y/N]").upper()
+    if _temp == "N":
+        target=_target
+        newfolder()
+    return _target
+
+#org copy from filecmp
+bufsize=0
+def actual_check(file1, file2):
+    bufsize=4*1024
+    with open(file1, 'rb') as f1, open(file2, 'rb') as f2:
+        while True:
+            b1=f1.read(bufsize)
+            b2=f2.read(bufsize)
+            if b1!=b2:
+                return False
+            if not b1:
+                return True
+
 def init():
     print("Loading TRANSFER.PIE")
-    print("TRANSFER.PIE 0.3.1.7")
+    print("TRANSFER.PIE 0.3.2.8")
     global dataset
     print("*")
     dataset = ""
@@ -181,55 +221,46 @@ def main():
             copy(dataset, target)
         else:
             exit
-    print("Copy ", dataset, " >>> ", target)        
-    copy(dataset,target)
-    print("Copied ", dataset, " >>> ", target)
-    print("Checking files")
-   #for _file_copy in filestocheck:
-    #    for _file_org in original:
-     #       print("Checking ", _file_copy)
-      #      check_file(_file_org,_file_copy)
-    if not len(filestocheck) == len(original):
-        print("ERROR CODE 001")
-    else:
-        i=0
-        _temp=True
-        while i<len(filestocheck):
-            print("CHECK OF ", filestocheck[i], " and ", original[i])
-            _temp = check_file(filestocheck[i],original[i])
-            if _temp:
-                print("Copy of ", original[i], " successful.")
-            else:
-                print("Error with file of ", filestocheck[i])
-                errorswhilecopy.append(filestocheck[i])
-                originalerrorfile.append(original[i])
-            i+=1
-        if errorswhilecopy:
-            for _error in errorswhilecopy:
-                print("Error with the copy ", _error)
-
-            print("Error while copying ", original[i],". Copy is not the same as the original.")
-    print("Thanks for using TRANSFER.PIE")
+    print("Copy ", dataset, " >>> ", target)  
+    _temp=input("Is that correct?[Y/N] - Y will start copy and checking").upper()
+    while not _temp in ["Y","N"]:
+        _temp=input("No valid input [Y/N]").upper()  
+    if _temp =="N":
+        main()
+    else:  
+        copy(dataset,target)
+        print("Copied ", dataset, " >>> ", target)
+        print("Checking files")
+    #for _file_copy in filestocheck:
+        #    for _file_org in original:
+        #       print("Checking ", _file_copy)
+        #      check_file(_file_org,_file_copy)
+        if not len(filestocheck) == len(original):
+            print("ERROR CODE 001")
+        else:
+            i=0
+            _temp=True
+            while i<len(filestocheck):
+                print("CHECK OF ", filestocheck[i], " and ", original[i])
+                _temp = check_file(filestocheck[i],original[i])
+                if _temp:
+                    print("Copy of ", original[i], " successful.")
+                else:
+                    print("Error with file of ", filestocheck[i])
+                    errorswhilecopy.append(filestocheck[i])
+                    originalerrorfile.append(original[i])
+                i+=1
+            if errorswhilecopy:
+                for _error in errorswhilecopy:
+                    print("Error with the copy ", _error)
+                #print("Error while copying ", original[i],". Copy is not the same as the original.")
+        print("Thanks for using TRANSFER.PIE")
 
 main()
 
-
-#org copy from filecmp
-bufsize=0
-def actual_copy(file1, file2):
-    bufsize=4*1024
-    with open(file1, 'rb') as f1, open(file2, 'rb') as f2:
-        while True:
-            b1=f1.read(bufsize)
-            b2=f2.read(bufsize)
-            if b1!=b2:
-                return False
-            if not b1:
-                return True
-
 #TODO
 #FehlerCodes
-#FEHLER IM CHECKEN!! - wegen Array. Vergleicht falsche Dateien
-#beim neuen ordner checken ob ordner schon besteht
+#FEHLER IM CHECKEN!! - wegen Array. Vergleicht falsche Dateien, solved
+#beim neuen ordner checken ob ordner schon besteht, solved
 #Files neu kopieren nach Fehlerhafter kopie?
 #Ladebalken
