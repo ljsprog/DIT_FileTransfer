@@ -6,6 +6,7 @@ import shutil
 copy=""
 dest=""
 bybyby=True
+process=""
 #helpfunctions
 #checkifexists(dir/file)
     #global copy
@@ -28,7 +29,7 @@ def check_validity(_copy, _dest):
     for _filecopy in _tempcopy:
         if not os.path.isfile(os.path.join(_copy,_filecopy)):
             print("IS DIR: ", _filecopy)
-            if os.path.exists(os.path.join(dest,_filecopy)):
+            if os.path.exists(os.path.join(_dest,_filecopy)):
                 print("Dir existiert schon. ", os.path.join(dest, _filecopy))
                 if not check_validity(os.path.join(_copy,_filecopy),os.path.join(_dest,_filecopy)):
                     print("Files in Subfolder already exists")
@@ -36,7 +37,10 @@ def check_validity(_copy, _dest):
                 #join scheint falschen path zu geben. check_validity(os.path.join(_copy,_filecopy), os.path.join(_dest,_filecopy))
             else:
                 print("Dir existiert noch nicht")
-            #Dir: Check ob dir im ziel existiert und check dann dateien im dir
+                
+            
+                #WHAT TO DO HERE?   
+                
         else:
             if not _filecopy == '.DS_Store':
                 if _filecopy in _tempdest:
@@ -69,9 +73,15 @@ def init():
     bybyby=True
     print("***********************")
     print("******WELCOME**********")
-    print("***********************")
+    print("***********************\n")
     ###weiter lines
-    #BbB check oder grober check?
+    bybyby_input = input("Should files be checked Byte by Byte? If not, only metadatas will be compared. [Y/N]\n").upper()
+    bybyby_input = "Y"
+    while bybyby_input not in ["Y","N"]:
+        bybyby_input = input("No valid data. Should files be checked Byte by Byte? If not, only metadatas will be compared. [Y/N\n")
+    if bybyby_input == "N":
+        bybyby = False
+    
 
 def load_directories():
     global copy
@@ -116,12 +126,19 @@ def copy_dir(_copy,_dest,_bybyby):
 
 #main
 init()
-if load_directories()=="file":
-    print("File")
-    copy_file(copy,dest,bybyby)
-else:
-    print("Dir")
-exit
+start_prog = input("To start the programm, enter START").upper()
+start_prog = "START"
+while start_prog != "START":
+    start_prog = input("No valid data. To...\n")
+if start_prog == "START":   
+    process = load_directories()
+    print(process, " CHECK 1")
+    if load_directories()=="file":  
+        print("File")
+        copy_file(copy,dest,bybyby)
+    else:
+        print("Dir")
+    exit
 #Check FILE oder DIR, aber durch Eingabe ->get Eingabe
 #copy dir oder
 #copy file
@@ -129,3 +146,4 @@ exit
 
 #TODO
 #bybyby eingabe
+#    /Users/leandersparla/Documents/Test/
